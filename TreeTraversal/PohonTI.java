@@ -14,14 +14,13 @@ public class PohonTI {
         }
     }
 
-    static Map<String, TreeNode> nodeMap = new HashMap<>();
+    static List<TreeNode> nodeList = new ArrayList<>();
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-
         String rootId = sc.nextLine().trim();
         TreeNode root = new TreeNode(rootId);
-        nodeMap.put(rootId, root);
+        nodeList.add(root);
 
         int T = sc.nextInt();
         sc.nextLine();
@@ -31,30 +30,46 @@ public class PohonTI {
             String parentId = parts[0];
             String childId = parts[1];
 
-            TreeNode parentNode = nodeMap.getOrDefault(parentId, new TreeNode(parentId));
-            nodeMap.put(parentId, parentNode);
 
+            TreeNode parentNode = findOrCreateNode(parentId);
 
             TreeNode childNode = new TreeNode(childId);
-            nodeMap.put(childId, childNode);
-
+            nodeList.add(childNode);
 
             parentNode.children.add(childNode);
+
             parentNode.points += 2;
 
             TreeNode current = parentNode;
             while (current != null && !current.id.equals(rootId)) {
-                for (Map.Entry<String, TreeNode> entry : nodeMap.entrySet()) {
-                    if (entry.getValue().children.contains(current)) {
-                        entry.getValue().points += 1;
-                        current = entry.getValue();
-                        break;
-                    }
+                current = findParent(current);
+                if (current != null) {
+                    current.points += 1;
                 }
             }
         }
 
         preorderTraversal(root);
+    }
+
+    private static TreeNode findOrCreateNode(String id) {
+        for (TreeNode node : nodeList) {
+            if (node.id.equals(id)) {
+                return node;
+            }
+        }
+        TreeNode newNode = new TreeNode(id);
+        nodeList.add(newNode);
+        return newNode;
+    }
+
+    private static TreeNode findParent(TreeNode child) {
+        for (TreeNode node : nodeList) {
+            if (node.children.contains(child)) {
+                return node;
+            }
+        }
+        return null;
     }
 
     private static void preorderTraversal(TreeNode node) {
